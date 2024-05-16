@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>8uNny Apps</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" type="text/css" href="../css/styles.css" />
+    <script
+      src="https://kit.fontawesome.com/3b161c540c.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <nav>
+      <div class="wrapper">
+        <div class="logo">
+          <a href="/">8uNny <span>App</span></a>
+        </div>
+        <input type="radio" name="slider" id="menu-btn" />
+        <input type="radio" name="slider" id="close-btn" />
+        <ul class="nav-links">
+          <label for="close-btn" class="btn close-btn"
+            ><i class="fas fa-times"></i
+          ></label>
+          <li>
+            <% if (session.username) { %>
+            <a href="#" class="desktop-item"
+              ><i class="fa-solid fa-user"></i> <%= session.username %></a
+            >
+            <input type="checkbox" id="showDrop" />
+            <label for="showDrop" class="mobile-item"
+              ><i class="fa-solid fa-user"></i> <%= session.username %></label
+            >
+            <ul class="drop-menu">
+              <li><a href="#">Upgrade Plan</a></li>
+              <li><a href="#">Settings</a></li>
+              <li><a href="/logout">Logout</a></li>
+            </ul>
+            <% } %>
+          </li>
+        </ul>
+        <label for="menu-btn" class="btn menu-btn"
+          ><i class="fas fa-bars"></i
+        ></label>
+      </div>
+    </nav>
+
+    <div class="body-text">
+      <div class="settingsui">
+        <div class="sidebar">
+          <div class="sidebar__header">
+            <img src="" alt="" class="sidebar__avatar" />
+            <p></p>
+          </div>
+          <div class="sidebar__menu-item sidebar__menu-item--active">
+            <i class="fa fa-cog"></i>
+            Settings
+          </div>
+          <div class="sidebar__menu-item">
+            <i class="fa-solid fa-wallet"></i>
+            Donasi
+          </div>
+          <div class="sidebar__menu-item">
+            <i class="fa-solid fa-people-group"></i>
+            Support
+          </div>
+        </div>
+
+        <div class="main">
+          <div class="main__header">
+            <h2>Your Settings</h2>
+          </div>
+          <div class="main__content">
+            <div class="main__avatar">
+              <div class="main__avatar--overlay">Ayzaaa</div>
+            </div>
+            <div class="main__settings-form">
+              <h5>
+                PERHATIAN: MOHON UNTUK INGAT INGAT KEMBALI SEMUA HAL PENTING DI
+                AKUN ANDA, KARENA JIKA ANDA INGIN MENGGANTI SESUATU YANG
+                BERKAITAN DENGAN AKUN ANDA. SISTEM KAMI AKAN OTOMATIS MEMERINTAH
+                ANDA UNTUK LOGIN ULANG.
+              </h5>
+              <br />
+              <% if (session) { %>
+              <form action="/settings" method="post">
+                <label class="main__input-label">Your username</label>
+                <input
+                  type="text"
+                  class="main__input"
+                  value="<%=
+                session.username %>"
+                  name="username"
+                  required
+                />
+                <label class="main__input-label">Your email</label>
+                <input
+                  type="email"
+                  class="main__input"
+                  value="<%= session.email %>"
+                  name="email"
+                  required
+                />
+                <label class="main__input-label">Your password</label>
+                <input
+                  type="text"
+                  class="main__input"
+                  value="<%= session.password %>"
+                  name="password"
+                  required
+                />
+                <button type="submit" class="btn main__save-button">
+                  Save
+                </button>
+                <button type="reset" class="btn main__cancel-button">
+                  Cancel
+                </button>
+              </form>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="js/scripts.js"></script>
+  </body>
+</html>

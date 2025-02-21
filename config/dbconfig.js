@@ -10,7 +10,7 @@ const dbconfig = mysql.createConnection({
 
 dbconfig.connect(function (err) {
   if (err) throw err;
-  console.log("DB Behasil terkoneksi dengan baik!");
+  console.log("Database Berhasil terkoneksi dengan baik!");
 });
 
 module.exports = dbconfig;

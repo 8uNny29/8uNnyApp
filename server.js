@@ -6,7 +6,6 @@ const path = require("path");
 const sessions = require("express-session");
 const http = require("http");
 const server = http.createServer(app);
-const io = require("socket.io")(server);
 
 // Some settings
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -22,26 +21,19 @@ const sessionMiddleware = sessions({
 });
 app.use(sessionMiddleware);
 
-io.engine.use(sessionMiddleware);
-
 // Get Routers
-const register = require("./routers/register");
-const login = require("./routers/login");
-const logout = require("./routers/logout");
+const auth = require("./routers/auth");
 const settings = require("./routers/settings");
+const data = require("./routers/data");
 
 // Routers
-app.use("/", register, login, logout, settings);
+app.use("/", auth, settings, data);
 
 app.get("/", (req, res, next) => {
-  if (req.session.loggedin) {
-    res.redirect("/home");
-  } else {
-    res.render("index");
-  }
+  res.render("index");
 });
 
-app.get("/home", (req, res, next) => {
+app.get("/admin", (req, res, next) => {
   if (req.session.loggedin) {
     res.render("dashboard", { session: req.session });
   } else {
@@ -49,24 +41,7 @@ app.get("/home", (req, res, next) => {
   }
 });
 
-io.on("connection", (socket) => {
-  const req = socket.request;
-
-  if (req.session.loggedin) {
-    console.log(`${req.session.username} user connected`);
-
-    socket.on("message", (data) => {
-      console.log(`${req.session.username} : ` + data);
-      io.emit("message", `${req.session.username} : ` + data);
-    });
-
-    socket.on("disconnect", () => {
-      console.log(`${req.session.username} user disconnected`);
-    });
-  }
-});
-
 const port = 1511;
 server.listen(port, (req, res, next) => {
-  console.log("Server berhasil berjalan di (http://127.0.0.1:1511)");
+  console.log("Server berhasil berjalan di (http://localhost:1511)");
 });

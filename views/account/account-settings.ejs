@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>HISS TKJ - Admin Panel</title>
+    <link href="/assets/css/gaya.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script
+      src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body class="sb-nav-fixed">
+    <%- include('../partials/navbar') %>
+    <div id="layoutSidenav_content">
+      <main>
+        <div class="container-fluid px-4">
+          <h1 class="mt-4 mb-4">Pengaturan</h1>
+          <div class="row">
+            <!-- Sidebar Navigasi -->
+            <div class="col-md-3">
+              <div class="list-group">
+                <button
+                  class="list-group-item list-group-item-action active"
+                  data-target="#formChangeUsername"
+                  onclick="toggleForm(this)"
+                >
+                  Username
+                </button>
+                <button
+                  class="list-group-item list-group-item-action"
+                  data-target="#formChangePassword"
+                  onclick="toggleForm(this)"
+                >
+                  Password
+                </button>
+                <button
+                  class="list-group-item list-group-item-action"
+                  data-target="#formChangeEmail"
+                  onclick="toggleForm(this)"
+                >
+                  Email
+                </button>
+                <button
+                  class="list-group-item list-group-item-action"
+                  data-target="#formChangePhone"
+                  onclick="toggleForm(this)"
+                >
+                  No. Telpon
+                </button>
+              </div>
+            </div>
+
+            <!-- Area Form -->
+            <div class="col-md-9">
+              <!-- Form Ganti Username -->
+              <div id="formChangeUsername" class="card mb-4">
+                <div class="card-header">
+                  <i class="fas fa-user me-2"></i> Form Ganti Username
+                </div>
+                <div class="card-body">
+                  <form action="/admin/settings/change-username" method="POST">
+                    <div class="mb-3">
+                      <label for="currentUsername" class="form-label"
+                        >Username Saat Ini</label
+                      >
+                      <div
+                        class="p-2 border rounded bg-light"
+                        id="current-username"
+                      >
+                        <%= account.username %>
+                        <!-- Data dinamis dari backend -->
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="newUsername" class="form-label"
+                        >Username Baru</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="newUsername"
+                        name="newUsername"
+                        required
+                      />
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                      Simpan Perubahan
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Form Ganti Email -->
+              <div id="formChangeEmail" class="card mb-4 d-none">
+                <div class="card-header">
+                  <i class="fas fa-envelope me-2"></i> Form Ganti Email
+                </div>
+                <div class="card-body">
+                  <form action="/admin/settings/change-email" method="POST">
+                    <div class="mb-3">
+                      <label for="current-email" class="form-label">
+                        Email Saat Ini
+                      </label>
+                      <div
+                        class="p-2 border rounded bg-light"
+                        id="current-email"
+                      >
+                        <%= account.email %>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="new-email" class="form-label"
+                        >Email Baru</label
+                      >
+                      <input
+                        type="email"
+                        class="form-control"
+                        id="new-email"
+                        name="newEmail"
+                        required
+                      />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                      Simpan Perubahan
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Form Ganti No. Telpon -->
+              <div id="formChangePhone" class="card mb-4 d-none">
+                <div class="card-header">
+                  <i class="fas fa-phone me-2"></i> Form Ganti No. Telpon
+                </div>
+                <div class="card-body">
+                  <form action="/admin/settings/change-phone" method="POST">
+                    <div class="mb-3">
+                      <label for="current-no-telpon" class="form-label">
+                        No. Telpon Saat Ini
+                      </label>
+                      <div
+                        class="p-2 border rounded bg-light"
+                        id="current-no-telpon"
+                      >
+                        <%= account.no_telpon %>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="new-no-telpon" class="form-label">
+                        No. Telpon Baru
+                      </label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="new-no-telpon"
+                        name="newPhone"
+                        required
+                      />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">
+                      Simpan Perubahan
+                    </button>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Form Ganti Password -->
+              <div id="formChangePassword" class="card mb-4 d-none">
+                <div class="card-header">
+                  <i class="fas fa-lock me-2"></i> Form Ganti Password
+                </div>
+                <div class="card-body">
+                  <form action="/admin/settings/change-password" method="POST">
+                    <div class="mb-3">
+                      <label for="currentPassword" class="form-label"
+                        >Password Saat Ini</label
+                      >
+                      <div class="input-group">
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="currentPassword"
+                          name="currentPassword"
+                          required
+                        />
+                        <button
+                          class="btn btn-outline-secondary toggle-password"
+                          type="button"
+                          data-target="#currentPassword"
+                        >
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="newPassword" class="form-label"
+                        >Password Baru</label
+                      >
+                      <div class="input-group">
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="newPassword"
+                          name="newPassword"
+                          required
+                        />
+                        <button
+                          class="btn btn-outline-secondary toggle-password"
+                          type="button"
+                          data-target="#newPassword"
+                        >
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="newConfirmPassword" class="form-label"
+                        >Konfirmasi Password Baru</label
+                      >
+                      <div class="input-group">
+                        <input
+                          type="password"
+                          class="form-control"
+                          id="newConfirmPassword"
+                          name="newConfirmPassword"
+                          required
+                        />
+                        <button
+                          class="btn btn-outline-secondary toggle-password"
+                          type="button"
+                          data-target="#newConfirmPassword"
+                        >
+                          <i class="fas fa-eye"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                      Simpan Perubahan
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+      <%- include('../partials/footer') %>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="/assets/js/skrip.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="/assets/demo/chart-area-demo.js"></script>
+    <script src="/assets/demo/chart-bar-demo.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="/assets/js/datatables-simple-demo.js"></script>
+  </body>
+</html>

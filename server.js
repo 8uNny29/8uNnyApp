@@ -25,9 +25,10 @@ app.use(sessionMiddleware);
 const auth = require("./routers/auth");
 const settings = require("./routers/settings");
 const data = require("./routers/data");
+const tabel = require("./routers/tabel");
 
 // Routers
-app.use("/", auth, settings, data);
+app.use("/", auth, settings, data, tabel);
 
 app.get("/", (req, res, next) => {
   res.render("index");
@@ -39,6 +40,33 @@ app.get("/admin", (req, res, next) => {
   } else {
     res.redirect("/login");
   }
+});
+
+// Middleware untuk menangani berbagai kode status
+app.use((err, req, res, next) => {
+  // Tetapkan status default ke 500 jika tidak ada
+  const statusCode = err.status || 500;
+
+  // Pastikan kode status valid
+  if (!res.statusCode || res.statusCode < 400) {
+    res.status(statusCode);
+  }
+
+  // Render halaman error sesuai dengan statusCode
+  res.render("errorcode", {
+    statusCode: statusCode,
+    message: err.message || "Terjadi kesalahan.",
+    url: req.originalUrl,
+  });
+});
+
+// Middleware untuk 404 (halaman tidak ditemukan)
+app.use((req, res) => {
+  res.status(404).render("errorcode", {
+    statusCode: 404,
+    message: "Halaman tidak ditemukan.",
+    url: req.originalUrl,
+  });
 });
 
 const port = 1511;

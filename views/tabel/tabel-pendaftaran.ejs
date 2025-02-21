@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>HISS TKJ - Admin Panel</title>
+    <link href="../assets/css/gaya.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css"
+      rel="stylesheet"
+    />
+    <script
+      src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body class="sb-nav-fixed">
+    <%- include('../partials/navbar') %>
+    <div id="layoutSidenav_content">
+      <main>
+        <div class="container-fluid px-4">
+          <h1 class="mt-4">Pendaftaran Anggota</h1>
+          <ol class="breadcrumb mb-4">
+            <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+            <li class="breadcrumb-item active">Data Pendaftar</li>
+          </ol>
+
+          <!-- Alert Notifikasi -->
+          <% if (message) { %>
+          <div
+            class="alert alert-success alert-dismissible fade show"
+            role="alert"
+          >
+            <%= message %>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="alert"
+              aria-label="Close"
+            ></button>
+          </div>
+          <% } %>
+
+          <div class="card mb-4">
+            <div class="card-header">
+              <i class="fas fa-table me-1"></i>
+              Data Pendaftar
+            </div>
+            <div class="card-body">
+              <% if (accounts && accounts.length > 0) { %>
+              <table id="datatablesSimple" class="table table-striped">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Nama</th>
+                    <th>Kelas</th>
+                    <th>Divisi</th>
+                    <th>Aksi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% accounts.forEach(account => { %>
+                  <tr>
+                    <td><%= account.id %></td>
+                    <td><%= account.username %></td>
+                    <td><%= account.nama %></td>
+                    <td><%= account.kelas %></td>
+                    <td><%= account.divisi %></td>
+                    <td>
+                      <!-- Tombol Terima -->
+                      <button
+                        class="btn btn-primary btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmModal"
+                        data-action="/admin/tabel-pendaftaran/terima"
+                        data-id="<%= account.id %>"
+                        data-message="Apakah Anda yakin ingin menerima pendaftaran ini?"
+                      >
+                        Terima
+                      </button>
+
+                      <!-- Tombol Tolak -->
+                      <button
+                        class="btn btn-danger btn-sm"
+                        data-bs-toggle="modal"
+                        data-bs-target="#confirmModal"
+                        data-action="/admin/tabel-pendaftaran/tolak"
+                        data-id="<%= account.id %>"
+                        data-message="Apakah Anda yakin ingin menolak pendaftaran ini?"
+                      >
+                        Tolak
+                      </button>
+                    </td>
+                  </tr>
+                  <% }); %>
+                </tbody>
+              </table>
+              <% } else { %>
+              <p>Tidak ada data pendaftaran.</p>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </main>
+      <%- include('../partials/footer') %>
+    </div>
+
+    <!-- Modal Konfirmasi -->
+    <div
+      class="modal fade"
+      id="confirmModal"
+      tabindex="-1"
+      aria-labelledby="confirmModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmModalLabel">Konfirmasi Aksi</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body" id="confirmMessage">
+            <!-- Pesan Konfirmasi -->
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Batal
+            </button>
+            <form id="confirmForm" method="POST" style="display: inline">
+              <input type="hidden" name="id" id="confirmId" />
+              <button type="submit" class="btn btn-primary">Konfirmasi</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="../assets/js/skrip.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="../assets/demo/chart-area-demo.js"></script>
+    <script src="../assets/demo/chart-bar-demo.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="../assets/js/datatables-simple-demo.js"></script>
+  </body>
+</html>

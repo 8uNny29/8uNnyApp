@@ -60,3 +60,20 @@ function toggleForm(button) {
   const target = document.querySelector(button.dataset.target);
   target.classList.remove("d-none");
 }
+
+// AKSI TOLAK/TERIMA
+const confirmModal = document.getElementById("confirmModal");
+confirmModal.addEventListener("show.bs.modal", (event) => {
+  const button = event.relatedTarget;
+  const action = button.getAttribute("data-action");
+  const id = button.getAttribute("data-id");
+  const message = button.getAttribute("data-message");
+
+  // Update form action and hidden input value
+  const form = document.getElementById("confirmForm");
+  form.action = action;
+  document.getElementById("confirmId").value = id;
+
+  // Update modal message
+  document.getElementById("confirmMessage").textContent = message;
+});

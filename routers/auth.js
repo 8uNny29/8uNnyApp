@@ -140,7 +140,7 @@ router.post("/register", async (req, res) => {
 
     // Simpan data ke database
     const sqlInsert =
-      "INSERT INTO accounts (username, nama, kelas, divisi, password) VALUES (?, ?, ?, ?, ?)";
+      "INSERT INTO pendaftaran (username, nama, kelas, divisi, password) VALUES (?, ?, ?, ?, ?)";
     db.query(
       sqlInsert,
       [username, namaLengkap, kelas, divisi, hashedPassword],

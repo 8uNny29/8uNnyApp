@@ -31,11 +31,13 @@
             <li class="breadcrumb-item active">Data Anggota</li>
           </ol>
 
-          <div class="card mb-4">
-            <div class="card-header">
+          <div class="card mb-4 shadow">
+            <div class="card-header bg-dark text-white">
               <i class="fas fa-table me-1"></i>
               Data Anggota
-              <a href="/admin/export-data/" class="btn btn-success float-end"
+              <a
+                href="/admin/data-anggota/export-data/"
+                class="btn btn-success float-end"
                 >Export</a
               >
             </div>
@@ -44,13 +46,13 @@
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>Username</th>
-                    <th>Nma</th>
+                    <th>Nama</th>
                     <th>Kelas</th>
                     <th>Divisi</th>
+                    <th>Role</th>
+                    <th>Username</th>
                     <th>Email</th>
                     <th>No. Telpon</th>
-                    <th>Pengurus</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -58,13 +60,13 @@
                   <% accounts.forEach(account => { %>
                   <tr>
                     <td><%= account.id %></td>
-                    <td><%= account.username %></td>
                     <td><%= account.nama %></td>
                     <td><%= account.kelas %></td>
                     <td><%= account.divisi %></td>
+                    <td><%= account.role %></td>
+                    <td><%= account.username %></td>
                     <td><%= account.email %></td>
                     <td><%= account.no_telpon %></td>
-                    <td><%= account.pengurus %></td>
                   </tr>
                   <% }) %>
                   <!-- Tambahkan data lainnya sesuai kebutuhan -->

@@ -44,7 +44,7 @@ router.get("/admin/settings/", (req, res, next) => {
         ? maskPhone(account.no_telpon)
         : "Tidak tersedia";
 
-      if (req.session.loggedin) {
+      if (req.session.loggedin && req.session.isPengurus === "Ya") {
         res.render(path.join(__dirname, "../views/account/settings"), {
           account,
         });
@@ -67,7 +67,7 @@ router.get("/admin/settings/account-settings", (req, res, next) => {
     if (results.length > 0) {
       const account = results[0];
 
-      if (req.session.loggedin) {
+      if (req.session.loggedin && req.session.isPengurus === "Ya") {
         res.render(path.join(__dirname, "../views/account/account-settings"), {
           account,
         });
@@ -83,139 +83,54 @@ router.get("/admin/settings/account-settings", (req, res, next) => {
 
 // Posting
 router.post("/admin/settings/change-username", async (req, res, next) => {
-  try {
-    const { newUsername } = req.body;
-    const user_id = req.session.user_id;
+  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+    try {
+      const { newUsername } = req.body;
+      const user_id = req.session.user_id;
 
-    // Validasi input kosong
-    if (!newUsername) {
-      return res.status(400).send("Username baru tidak boleh kosong!");
-    }
-
-    // Escape karakter sensitif
-    const escapedUsername = validator.escape(newUsername.trim());
-
-    // Validasi username hanya alfanumerik
-    const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
-    if (!usernameRegex.test(escapedUsername)) {
-      return res.status(400).send("Username mengandung karakter tidak valid!");
-    }
-
-    // Periksa apakah username sudah ada
-    const sqlCheck = "SELECT id FROM accounts WHERE username = ?";
-    const sqlUpdate = "UPDATE accounts SET username = ? WHERE id = ?";
-
-    db.query(sqlCheck, [escapedUsername], (err, results) => {
-      if (err) {
-        console.error("Error MySQL saat memeriksa username:", err);
-        return res.status(500).send("Terjadi kesalahan server.");
+      // Validasi input kosong
+      if (!newUsername) {
+        return res.status(400).send("Username baru tidak boleh kosong!");
       }
 
-      if (results.length > 0) {
-        // Username sudah digunakan
+      // Escape karakter sensitif
+      const escapedUsername = validator.escape(newUsername.trim());
+
+      // Validasi username hanya alfanumerik
+      const usernameRegex = /^[a-zA-Z0-9_.-]+$/;
+      if (!usernameRegex.test(escapedUsername)) {
         return res
           .status(400)
-          .send(
-            `Username "${escapedUsername}" sudah digunakan. Silakan pilih username lain.`
-          );
+          .send("Username mengandung karakter tidak valid!");
       }
 
-      // Update username jika belum digunakan
-      db.query(sqlUpdate, [escapedUsername, user_id], (err, results) => {
+      // Periksa apakah username sudah ada
+      const sqlCheck = "SELECT id FROM accounts WHERE username = ?";
+      const sqlUpdate = "UPDATE accounts SET username = ? WHERE id = ?";
+
+      db.query(sqlCheck, [escapedUsername], (err, results) => {
         if (err) {
-          console.error("Error MySQL saat mengupdate username:", err);
+          console.error("Error MySQL saat memeriksa username:", err);
           return res.status(500).send("Terjadi kesalahan server.");
         }
 
-        // Logout user setelah username diubah
-        if (req.session.loggedin) {
-          req.session.user_id = null;
-          req.session.save(function (err) {
-            if (err) next(err);
-
-            req.session.regenerate(function (err) {
-              if (err) next(err);
-              res.redirect("/login");
-            });
-          });
-        } else {
-          res.redirect("/login");
+        if (results.length > 0) {
+          // Username sudah digunakan
+          return res
+            .status(400)
+            .send(
+              `Username "${escapedUsername}" sudah digunakan. Silakan pilih username lain.`
+            );
         }
-      });
-    });
-  } catch (error) {
-    console.error("Terjadi kesalahan saat mengganti username:", error);
-    res.status(500).send("Terjadi kesalahan server. Silakan coba lagi nanti.");
-  }
-});
 
-router.post("/admin/settings/change-password", async (req, res, next) => {
-  try {
-    const { currentPassword, newPassword, newConfirmPassword } = req.body;
-    const user_id = req.session.user_id;
-
-    // Validasi input kosong
-    if (!currentPassword || !newPassword || !newConfirmPassword) {
-      return res.status(400).send("Semua field harus diisi!");
-    }
-
-    // Validasi panjang password baru
-    if (newPassword.length < 8) {
-      return res.status(400).send("Password baru harus minimal 8 karakter!");
-    }
-
-    // Validasi konfirmasi password baru
-    if (newPassword !== newConfirmPassword) {
-      return res
-        .status(400)
-        .send("Password baru dan konfirmasi password tidak cocok!");
-    }
-
-    // Escape input
-    const escapedCurrentPassword = validator.escape(currentPassword.trim());
-    const escapedNewPassword = validator.escape(newPassword.trim());
-
-    // Periksa password saat ini di database
-    const sqlGetPassword = "SELECT password FROM accounts WHERE id = ?";
-    const sqlUpdatePassword = "UPDATE accounts SET password = ? WHERE id = ?";
-
-    db.query(sqlGetPassword, [user_id], async (err, results) => {
-      if (err) {
-        console.error("Error MySQL saat memeriksa password:", err);
-        return res.status(500).send("Terjadi kesalahan server.");
-      }
-
-      if (results.length === 0) {
-        return res.status(404).send("Akun tidak ditemukan.");
-      }
-
-      const hashedCurrentPassword = results[0].password;
-
-      // Validasi password saat ini
-      const isMatch = await bcrypt.compare(
-        escapedCurrentPassword,
-        hashedCurrentPassword
-      );
-      if (!isMatch) {
-        return res
-          .status(400)
-          .send("Password saat ini tidak sesuai. Silakan coba lagi.");
-      }
-
-      // Hash password baru
-      const hashedNewPassword = await bcrypt.hash(escapedNewPassword, 10);
-
-      // Update password di database
-      db.query(
-        sqlUpdatePassword,
-        [hashedNewPassword, user_id],
-        (err, results) => {
+        // Update username jika belum digunakan
+        db.query(sqlUpdate, [escapedUsername, user_id], (err, results) => {
           if (err) {
-            console.error("Error MySQL saat mengupdate password:", err);
+            console.error("Error MySQL saat mengupdate username:", err);
             return res.status(500).send("Terjadi kesalahan server.");
           }
 
-          // Logout user setelah password diubah
+          // Logout user setelah username diubah
           if (req.session.loggedin) {
             req.session.user_id = null;
             req.session.save(function (err) {
@@ -229,12 +144,109 @@ router.post("/admin/settings/change-password", async (req, res, next) => {
           } else {
             res.redirect("/login");
           }
+        });
+      });
+    } catch (error) {
+      console.error("Terjadi kesalahan saat mengganti username:", error);
+      res
+        .status(500)
+        .send("Terjadi kesalahan server. Silakan coba lagi nanti.");
+    }
+  } else {
+    res.redirect("/login");
+  }
+});
+
+router.post("/admin/settings/change-password", async (req, res, next) => {
+  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+    try {
+      const { currentPassword, newPassword, newConfirmPassword } = req.body;
+      const user_id = req.session.user_id;
+
+      // Validasi input kosong
+      if (!currentPassword || !newPassword || !newConfirmPassword) {
+        return res.status(400).send("Semua field harus diisi!");
+      }
+
+      // Validasi panjang password baru
+      if (newPassword.length < 8) {
+        return res.status(400).send("Password baru harus minimal 8 karakter!");
+      }
+
+      // Validasi konfirmasi password baru
+      if (newPassword !== newConfirmPassword) {
+        return res
+          .status(400)
+          .send("Password baru dan konfirmasi password tidak cocok!");
+      }
+
+      // Escape input
+      const escapedCurrentPassword = validator.escape(currentPassword.trim());
+      const escapedNewPassword = validator.escape(newPassword.trim());
+
+      // Periksa password saat ini di database
+      const sqlGetPassword = "SELECT password FROM accounts WHERE id = ?";
+      const sqlUpdatePassword = "UPDATE accounts SET password = ? WHERE id = ?";
+
+      db.query(sqlGetPassword, [user_id], async (err, results) => {
+        if (err) {
+          console.error("Error MySQL saat memeriksa password:", err);
+          return res.status(500).send("Terjadi kesalahan server.");
         }
-      );
-    });
-  } catch (error) {
-    console.error("Terjadi kesalahan saat mengganti password:", error);
-    res.status(500).send("Terjadi kesalahan server. Silakan coba lagi nanti.");
+
+        if (results.length === 0) {
+          return res.status(404).send("Akun tidak ditemukan.");
+        }
+
+        const hashedCurrentPassword = results[0].password;
+
+        // Validasi password saat ini
+        const isMatch = await bcrypt.compare(
+          escapedCurrentPassword,
+          hashedCurrentPassword
+        );
+        if (!isMatch) {
+          return res
+            .status(400)
+            .send("Password saat ini tidak sesuai. Silakan coba lagi.");
+        }
+
+        // Hash password baru
+        const hashedNewPassword = await bcrypt.hash(escapedNewPassword, 10);
+
+        // Update password di database
+        db.query(
+          sqlUpdatePassword,
+          [hashedNewPassword, user_id],
+          (err, results) => {
+            if (err) {
+              console.error("Error MySQL saat mengupdate password:", err);
+              return res.status(500).send("Terjadi kesalahan server.");
+            }
+
+            // Logout user setelah password diubah
+            if (req.session.loggedin) {
+              req.session.user_id = null;
+              req.session.save(function (err) {
+                if (err) next(err);
+
+                req.session.regenerate(function (err) {
+                  if (err) next(err);
+                  res.redirect("/login");
+                });
+              });
+            } else {
+              res.redirect("/login");
+            }
+          }
+        );
+      });
+    } catch (error) {
+      console.error("Terjadi kesalahan saat mengganti password:", error);
+      res
+        .status(500)
+        .send("Terjadi kesalahan server. Silakan coba lagi nanti.");
+    }
   }
 });
 
@@ -271,7 +283,9 @@ router.post("/admin/settings/change-email", async (req, res, next) => {
         // Email sudah digunakan
         return res
           .status(400)
-          .send(`Email "${escapedEmail}" sudah digunakan. Silakan pilih email lain.`);
+          .send(
+            `Email "${escapedEmail}" sudah digunakan. Silakan pilih email lain.`
+          );
       }
 
       // Update email jika belum digunakan
@@ -321,7 +335,9 @@ router.post("/admin/settings/change-phone", async (req, res, next) => {
     if (!phoneRegex.test(escapedPhone)) {
       return res
         .status(400)
-        .send("Nomor telepon harus berupa angka dengan panjang 10-15 karakter!");
+        .send(
+          "Nomor telepon harus berupa angka dengan panjang 10-15 karakter!"
+        );
     }
 
     // Periksa apakah nomor telepon sudah ada

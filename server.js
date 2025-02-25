@@ -35,10 +35,12 @@ app.get("/", (req, res, next) => {
 });
 
 app.get("/admin", (req, res, next) => {
-  if (req.session.loggedin) {
-    res.render("dashboard", { session: req.session });
+  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+    res.render(path.join(__dirname, "/views/admins/panel"), {
+      session: req.session,
+    });
   } else {
-    res.redirect("/login");
+    res.redirect("/dashboard");
   }
 });
 

@@ -25,9 +25,7 @@ router.get("/register", (req, res, next) => {
 router.get("/logout", (req, res, next) => {
   if (req.session.loggedin) {
     req.session.username = null;
-    req.session.email = null;
-    req.session.password = null;
-    req.session.idacc = null;
+    req.session.user_id = null;
     req.session.save(function (err) {
       if (err) next(err);
 
@@ -88,9 +86,15 @@ router.post("/login", (req, res) => {
         // Set session
         req.session.loggedin = true;
         req.session.user_id = user.id;
+        req.session.isPengurus = user.pengurus;
 
         console.log(`[${user.id}] ${username} telah login`);
-        res.redirect("/admin");
+
+        if (req.session.isPengurus === "Ya") {
+          res.redirect("/admin");
+        } else {
+          res.redirect("/dashboard");
+        }
       });
     });
   } catch (error) {

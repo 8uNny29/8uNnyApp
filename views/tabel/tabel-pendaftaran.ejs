@@ -26,10 +26,12 @@
       <main>
         <div class="container-fluid px-4">
           <h1 class="mt-4">Pendaftaran Anggota</h1>
-          <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
-            <li class="breadcrumb-item active">Data Pendaftar</li>
-          </ol>
+          <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-4">
+              <li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
+              <li class="breadcrumb-item active">Data Pendaftar</li>
+            </ol>
+          </nav>
 
           <!-- Alert Notifikasi -->
           <% if (message) { %>
@@ -47,63 +49,72 @@
           </div>
           <% } %>
 
-          <div class="card mb-4">
-            <div class="card-header">
-              <i class="fas fa-table me-1"></i>
-              Data Pendaftar
+          <div class="card mb-4 shadow">
+            <div
+              class="card-header bg-dark text-white d-flex justify-content-between align-items-center"
+            >
+              <span> <i class="fas fa-table me-1"></i> Data Pendaftar </span>
+              <!-- <a href="/admin/export-data" class="btn btn-success btn-sm">
+                <i class="fas fa-download"></i> Export Excel -->
+              <!-- </a> -->
             </div>
             <div class="card-body">
               <% if (accounts && accounts.length > 0) { %>
-              <table id="datatablesSimple" class="table table-striped">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Nama</th>
-                    <th>Kelas</th>
-                    <th>Divisi</th>
-                    <th>Aksi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% accounts.forEach(account => { %>
-                  <tr>
-                    <td><%= account.id %></td>
-                    <td><%= account.username %></td>
-                    <td><%= account.nama %></td>
-                    <td><%= account.kelas %></td>
-                    <td><%= account.divisi %></td>
-                    <td>
-                      <!-- Tombol Terima -->
-                      <button
-                        class="btn btn-primary btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmModal"
-                        data-action="/admin/tabel-pendaftaran/terima"
-                        data-id="<%= account.id %>"
-                        data-message="Apakah Anda yakin ingin menerima pendaftaran ini?"
-                      >
-                        Terima
-                      </button>
+              <div class="table-responsive">
+                <table
+                  id="datatablesSimple"
+                  class="table table-striped table-bordered align-middle text-center"
+                >
+                  <thead class="table-dark">
+                    <tr>
+                      <th>ID</th>
+                      <th>Username</th>
+                      <th>Nama</th>
+                      <th>Kelas</th>
+                      <th>Divisi</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% accounts.forEach(account => { %>
+                    <tr>
+                      <td><%= account.id %></td>
+                      <td><%= account.username %></td>
+                      <td><%= account.nama %></td>
+                      <td><%= account.kelas %></td>
+                      <td><%= account.divisi %></td>
+                      <td>
+                        <!-- Tombol Terima -->
+                        <button
+                          class="btn btn-primary btn-sm"
+                          data-bs-toggle="modal"
+                          data-bs-target="#confirmModal"
+                          data-action="/admin/tabel-pendaftaran/terima"
+                          data-id="<%= account.id %>"
+                          data-message="Apakah Anda yakin ingin menerima pendaftaran ini?"
+                        >
+                          <i class="fas fa-check"></i> Terima
+                        </button>
 
-                      <!-- Tombol Tolak -->
-                      <button
-                        class="btn btn-danger btn-sm"
-                        data-bs-toggle="modal"
-                        data-bs-target="#confirmModal"
-                        data-action="/admin/tabel-pendaftaran/tolak"
-                        data-id="<%= account.id %>"
-                        data-message="Apakah Anda yakin ingin menolak pendaftaran ini?"
-                      >
-                        Tolak
-                      </button>
-                    </td>
-                  </tr>
-                  <% }); %>
-                </tbody>
-              </table>
+                        <!-- Tombol Tolak -->
+                        <button
+                          class="btn btn-danger btn-sm"
+                          data-bs-toggle="modal"
+                          data-bs-target="#confirmModal"
+                          data-action="/admin/tabel-pendaftaran/tolak"
+                          data-id="<%= account.id %>"
+                          data-message="Apakah Anda yakin ingin menolak pendaftaran ini?"
+                        >
+                          <i class="fas fa-times"></i> Tolak
+                        </button>
+                      </td>
+                    </tr>
+                    <% }); %>
+                  </tbody>
+                </table>
+              </div>
               <% } else { %>
-              <p>Tidak ada data pendaftaran.</p>
+              <p class="text-center">Tidak ada data pendaftaran.</p>
               <% } %>
             </div>
           </div>

@@ -6,34 +6,87 @@ const ExcelJS = require("exceljs");
 
 // Getting
 router.get("/admin/data-anggota", (req, res, next) => {
-  const sqlGet = "SELECT * FROM accounts";
+  const { kelas, divisi, role } = req.query;
 
-  db.query(sqlGet, (err, results) => {
+  let sqlGetAll = "SELECT * FROM accounts";
+  const filters = [];
+
+  if (kelas) filters.push(`kelas = '${kelas}'`);
+  if (divisi) filters.push(`divisi = '${divisi}'`);
+  if (role) filters.push(`role = '${role}'`);
+
+  if (filters.length > 0) {
+    sqlGetAll += " WHERE " + filters.join(" AND ");
+  }
+
+  const sqlUniqueKelas =
+    "SELECT DISTINCT kelas FROM accounts ORDER BY kelas ASC";
+  const sqlUniqueDivisi =
+    "SELECT DISTINCT divisi FROM accounts ORDER BY divisi ASC";
+  const sqlUniqueRoles = "SELECT DISTINCT role FROM accounts ORDER BY role ASC";
+
+  db.query(sqlGetAll, (err, results) => {
     if (err) throw err;
 
-    if (results.length > 0) {
-      const accounts = results;
+    const accounts = results;
 
-      if (req.session.loggedin && req.session.isPengurus === "Ya") {
-        res.render(path.join(__dirname, "../views/data/data-anggota"), {
-          accounts,
+    db.query(sqlUniqueKelas, (errKelas, resultsKelas) => {
+      if (errKelas) throw errKelas;
+
+      db.query(sqlUniqueDivisi, (errDivisi, resultsDivisi) => {
+        if (errDivisi) throw errDivisi;
+
+        db.query(sqlUniqueRoles, (errRoles, resultsRoles) => {
+          if (errRoles) throw errRoles;
+
+          const uniqueKelas = resultsKelas.map((row) => row.kelas);
+          const uniqueDivisi = resultsDivisi.map((row) => row.divisi);
+          const uniqueRoles = resultsRoles.map((row) => row.role);
+
+          if (req.session.loggedin && req.session.isPengurus === "Ya") {
+            res.render(path.join(__dirname, "../views/data/data-anggota"), {
+              accounts,
+              uniqueKelas,
+              uniqueDivisi,
+              uniqueRoles,
+              query: req.query, // Pastikan req.query dikirim ke view
+            });
+          } else {
+            res.redirect("/login");
+          }
         });
-      } else {
-        res.redirect("/login");
-      }
-    } else {
-      res.redirect("/login");
-    }
+      });
+    });
   });
 });
 
 router.get("/admin/data-anggota/export-data", async (req, res) => {
   if (req.session.loggedin && req.session.isPengurus === "Ya") {
     try {
-      // Query data anggota dari database
-      const sqlGet =
-        "SELECT id, username, nama, kelas, divisi, email, no_telpon, pengurus FROM accounts";
-      db.query(sqlGet, async (err, results) => {
+      // Ambil parameter filter dari query string
+      const { kelas, divisi, role } = req.query;
+
+      // Siapkan query SQL dengan filter dinamis
+      let sqlGet =
+        "SELECT id, username, nama, kelas, divisi, email, no_telpon, role FROM accounts WHERE 1=1";
+
+      // Tambahkan filter jika tersedia
+      const params = [];
+      if (kelas) {
+        sqlGet += " AND kelas = ?";
+        params.push(kelas);
+      }
+      if (divisi) {
+        sqlGet += " AND divisi = ?";
+        params.push(divisi);
+      }
+      if (role) {
+        sqlGet += " AND role = ?";
+        params.push(role);
+      }
+
+      // Eksekusi query
+      db.query(sqlGet, params, async (err, results) => {
         if (err) {
           console.error("Terjadi kesalahan saat query:", err);
           return res
@@ -48,13 +101,13 @@ router.get("/admin/data-anggota/export-data", async (req, res) => {
         // Tambahkan header ke worksheet
         worksheet.columns = [
           { header: "ID", key: "id", width: 10 },
-          { header: "Username", key: "username", width: 20 },
           { header: "Nama", key: "nama", width: 25 },
           { header: "Kelas", key: "kelas", width: 10 },
           { header: "Divisi", key: "divisi", width: 15 },
+          { header: "Role", key: "role", width: 10 },
+          { header: "Username", key: "username", width: 20 },
           { header: "Email", key: "email", width: 30 },
           { header: "No. Telpon", key: "no_telpon", width: 15 },
-          { header: "Pengurus", key: "pengurus", width: 10 },
         ];
 
         // Tambahkan data ke worksheet
@@ -72,23 +125,23 @@ router.get("/admin/data-anggota/export-data", async (req, res) => {
           },
           columns: [
             { name: "ID", filterButton: true },
-            { name: "Username", filterButton: true },
             { name: "Nama", filterButton: true },
             { name: "Kelas", filterButton: true },
             { name: "Divisi", filterButton: true },
+            { name: "Role", filterButton: true },
+            { name: "Username", filterButton: true },
             { name: "Email", filterButton: true },
             { name: "No. Telpon", filterButton: true },
-            { name: "Pengurus", filterButton: true },
           ],
           rows: results.map((row) => [
             row.id,
-            row.username,
             row.nama,
             row.kelas,
             row.divisi,
+            row.role,
+            row.username,
             row.email,
             row.no_telpon,
-            row.pengurus,
           ]),
         });
 
@@ -248,6 +301,20 @@ router.post("/admin/data-keuangan/hapus/:id", (req, res, next) => {
   } else {
     res.redirect("/login");
   }
+});
+
+router.post("/admin/data-anggota/filter", (req, res, next) => {
+  const { kelas, divisi, role } = req.body;
+
+  let sqlFilter = "SELECT * FROM accounts WHERE 1=1";
+  if (kelas) sqlFilter += ` AND kelas = '${kelas}'`;
+  if (divisi) sqlFilter += ` AND divisi = '${divisi}'`;
+  if (role) sqlFilter += ` AND role = '${role}'`;
+
+  db.query(sqlFilter, (err, results) => {
+    if (err) throw err;
+    res.json(results);
+  });
 });
 // End Posting
 

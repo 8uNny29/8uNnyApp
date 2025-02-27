@@ -1,10 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const path = require("path");
-const db = require("../config/dbconfig");
+const db = require("../../config/dbconfig");
 const ExcelJS = require("exceljs");
 
-// Getting
+// GET
+// Halaman utama data anggota
 router.get("/admin/data-anggota", (req, res, next) => {
   const { kelas, divisi, role } = req.query;
 
@@ -44,7 +45,7 @@ router.get("/admin/data-anggota", (req, res, next) => {
           const uniqueRoles = resultsRoles.map((row) => row.role);
 
           if (req.session.loggedin && req.session.isPengurus === "Ya") {
-            res.render(path.join(__dirname, "../views/data/data-anggota"), {
+            res.render(path.join(__dirname, "../../views/data/data-anggota"), {
               accounts,
               uniqueKelas,
               uniqueDivisi,
@@ -60,6 +61,7 @@ router.get("/admin/data-anggota", (req, res, next) => {
   });
 });
 
+// Export data
 router.get("/admin/data-anggota/export-data", async (req, res) => {
   if (req.session.loggedin && req.session.isPengurus === "Ya") {
     try {
@@ -167,154 +169,26 @@ router.get("/admin/data-anggota/export-data", async (req, res) => {
     res.redirect("/login");
   }
 });
+// END GET
 
-router.get("/admin/data-keuangan", (req, res, next) => {
-  const sqlGet = "SELECT * FROM keuangan";
-
-  db.query(sqlGet, (err, results) => {
-    const message = req.session.message || null;
-    req.session.message = null; // Hapus pesan setelah ditampilkan
-    if (err) throw err;
-
-    if (req.session.loggedin && req.session.isPengurus === "Ya") {
-      res.render(path.join(__dirname, "../views/data/data-keuangan"), {
-        keuangan: results.length > 0 ? results : null,
-        message,
-      });
-    } else {
-      res.redirect("/login");
-    }
-  });
-});
-
-router.get("/admin/data-keuangan/edit/:id", (req, res) => {
-  const id = req.params.id;
-  const sql = "SELECT * FROM keuangan WHERE id = ?";
-  db.query(sql, [id], (err, results) => {
-    if (err) throw err;
-    if (results.length === 0) {
-      return res.status(404).send("Data tidak ditemukan");
-    }
-    res.render(path.join(__dirname, "../views/data/data-keuangan-edit"), {
-      keuangan: results[0], // Kirim data ke view
-    });
-  });
-});
-
-router.get("/admin/data-keuangan/tambah/", (req, res) => {
-  res.render(path.join(__dirname, "../views/data/data-keuangan-tambah"));
-});
-// End Getting
-
-// Posting
-router.post("/admin/anggota", (req, res, next) => {
-  const { username, email, password } = req.body;
-  const sqlUpdate =
-    "UPDATE accounts SET username = ?, email = ?, password = ? WHERE id = ?";
-
-  db.query(
-    sqlUpdate,
-    [username, email, password, req.session.idacc],
-    (err, results, rows) => {
-      if (err) throw err;
-    }
-  );
-  //Resetting
-  if (req.session.loggedin) {
-    req.session.username = null;
-    req.session.email = null;
-    req.session.password = null;
-    req.session.idacc = null;
-    req.session.save(function (err) {
-      if (err) next(err);
-
-      req.session.regenerate(function (err) {
-        if (err) next(err);
-        res.redirect("/login");
-      });
-    });
-  }
-});
-
-router.post("/admin/data-keuangan/tambah", (req, res, next) => {
-  const { tanggal, jenis_transaksi, nominal, keterangan } = req.body;
-
-  if (req.session.loggedin && req.session.isPengurus === "Ya") {
-    const sqlInsert =
-      "INSERT INTO keuangan (tanggal, jenis_transaksi, nominal, keterangan) VALUES (?, ?, ?, ?)";
-    db.query(
-      sqlInsert,
-      [tanggal, jenis_transaksi, nominal, keterangan],
-      (err) => {
-        if (err) {
-          console.error("Error inserting data:", err);
-          return res.status(500).send("Database error");
-        }
-        req.session.message = "Data keuangan berhasil ditambahkan.";
-        res.redirect("/admin/data-keuangan");
-      }
-    );
-  } else {
-    res.redirect("/login");
-  }
-});
-
-// Mengedit data keuangan
-router.post("/admin/data-keuangan/edit/:id", (req, res, next) => {
-  const { id } = req.params;
-  const { tanggal, jenis_transaksi, nominal, keterangan } = req.body;
-
-  if (req.session.loggedin && req.session.isPengurus === "Ya") {
-    const sqlUpdate =
-      "UPDATE keuangan SET tanggal = ?, jenis_transaksi = ?, nominal = ?, keterangan = ? WHERE id = ?";
-    db.query(
-      sqlUpdate,
-      [tanggal, jenis_transaksi, nominal, keterangan, id],
-      (err) => {
-        if (err) {
-          console.error("Error updating data:", err);
-          return res.status(500).send("Database error");
-        }
-        req.session.message = "Data keuangan berhasil diperbarui.";
-        res.redirect("/admin/data-keuangan");
-      }
-    );
-  } else {
-    res.redirect("/login");
-  }
-});
-
-// Menghapus data keuangan
-router.post("/admin/data-keuangan/hapus/:id", (req, res, next) => {
-  const { id } = req.params;
-
-  if (req.session.loggedin && req.session.isPengurus === "Ya") {
-    const sqlDelete = "DELETE FROM keuangan WHERE id = ?";
-    db.query(sqlDelete, [id], (err) => {
-      if (err) {
-        console.error("Error deleting data:", err);
-        return res.status(500).send("Database error");
-      }
-      req.session.message = "Data keuangan berhasil dihapus.";
-      res.redirect("/admin/data-keuangan");
-    });
-  } else {
-    res.redirect("/login");
-  }
-});
-
+// POST
+// Filter data anggota
 router.post("/admin/data-anggota/filter", (req, res, next) => {
   const { kelas, divisi, role } = req.body;
 
-  let sqlFilter = "SELECT * FROM accounts WHERE 1=1";
-  if (kelas) sqlFilter += ` AND kelas = '${kelas}'`;
-  if (divisi) sqlFilter += ` AND divisi = '${divisi}'`;
-  if (role) sqlFilter += ` AND role = '${role}'`;
+  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+    let sqlFilter = "SELECT * FROM accounts WHERE 1=1";
+    if (kelas) sqlFilter += ` AND kelas = '${kelas}'`;
+    if (divisi) sqlFilter += ` AND divisi = '${divisi}'`;
+    if (role) sqlFilter += ` AND role = '${role}'`;
 
-  db.query(sqlFilter, (err, results) => {
-    if (err) throw err;
-    res.json(results);
-  });
+    db.query(sqlFilter, (err, results) => {
+      if (err) throw err;
+      res.json(results);
+    });
+  } else {
+    res.redirect("/login");
+  }
 });
 // End Posting
 

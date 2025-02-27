@@ -24,11 +24,12 @@ app.use(sessionMiddleware);
 // Get Routers
 const auth = require("./routers/auth");
 const settings = require("./routers/settings");
-const data = require("./routers/data");
+const dataAnggota = require("./routers/data/anggota");
+const dataKeuangan = require("./routers/data/keuangan");
 const tabel = require("./routers/tabel");
 
 // Routers
-app.use("/", auth, settings, data, tabel);
+app.use("/", auth, settings, dataAnggota, dataKeuangan, tabel);
 
 app.get("/", (req, res, next) => {
   res.render("index");

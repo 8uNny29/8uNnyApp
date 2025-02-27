@@ -25,7 +25,7 @@
     ></script>
   </head>
   <body class="sb-nav-fixed">
-    <%- include('../partials/navbar') %>
+    <%- include('../partials/navbar') %> <%- include('../partials/overlay') %>
     <div id="layoutSidenav_content">
       <main>
         <div class="container-fluid px-4">
@@ -73,7 +73,7 @@
                   <i class="fas fa-user me-2"></i> Form Ganti Username
                 </div>
                 <div class="card-body">
-                  <form action="/admin/settings/change-username" method="POST">
+                  <form action="/settings/change-username" method="POST">
                     <div class="mb-3">
                       <label for="currentUsername" class="form-label"
                         >Username Saat Ini</label
@@ -111,7 +111,7 @@
                   <i class="fas fa-envelope me-2"></i> Form Ganti Email
                 </div>
                 <div class="card-body">
-                  <form action="/admin/settings/change-email" method="POST">
+                  <form action="/settings/change-email" method="POST">
                     <div class="mb-3">
                       <label for="current-email" class="form-label">
                         Email Saat Ini
@@ -148,7 +148,7 @@
                   <i class="fas fa-phone me-2"></i> Form Ganti No. Telpon
                 </div>
                 <div class="card-body">
-                  <form action="/admin/settings/change-phone" method="POST">
+                  <form action="/settings/change-phone" method="POST">
                     <div class="mb-3">
                       <label for="current-no-telpon" class="form-label">
                         No. Telpon Saat Ini
@@ -185,7 +185,7 @@
                   <i class="fas fa-lock me-2"></i> Form Ganti Password
                 </div>
                 <div class="card-body">
-                  <form action="/admin/settings/change-password" method="POST">
+                  <form action="/settings/change-password" method="POST">
                     <div class="mb-3">
                       <label for="currentPassword" class="form-label"
                         >Password Saat Ini</label

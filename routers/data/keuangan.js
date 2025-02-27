@@ -9,65 +9,67 @@ router.get("/admin/data-keuangan", (req, res, next) => {
   let message = req.session.message || null;
   req.session.message = null; // Hapus pesan setelah ditampilkan
 
-  // Update total pemasukan dan pengeluaran berdasarkan data detail
-  const updateTotalsQuery = `
-      UPDATE keuangan AS k
-      LEFT JOIN (
-        SELECT 
-          keuangan_id, 
-          SUM(CASE WHEN jenis_transaksi = 'Pemasukan' THEN nominal ELSE 0 END) AS total_pemasukan,
-          SUM(CASE WHEN jenis_transaksi = 'Pengeluaran' THEN nominal ELSE 0 END) AS total_pengeluaran
-        FROM keuangan_detail
-        GROUP BY keuangan_id
-      ) AS kd
-      ON k.id = kd.keuangan_id
-      SET 
-        k.total_pemasukan = IFNULL(kd.total_pemasukan, 0),
-        k.total_pengeluaran = IFNULL(kd.total_pengeluaran, 0)
-    `;
-
-  db.query(updateTotalsQuery, (errUpdate) => {
-    if (errUpdate) {
-      console.error("Error updating totals:", errUpdate);
-      return res
-        .status(500)
-        .send("Gagal memperbarui total pemasukan dan pengeluaran.");
-    }
-
-    // Ambil data utama keuangan
-    const sqlMain = `
-        SELECT 
-          id, 
-          tahun, 
-          total_pemasukan, 
-          total_pengeluaran, 
-          DATE_FORMAT(updated_at, '%d %M %Y %H:%i:%s') AS tanggal_update_terakhir 
-        FROM keuangan
+  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+    // Update total pemasukan dan pengeluaran berdasarkan data detail
+    const updateTotalsQuery = `
+        UPDATE keuangan AS k
+        LEFT JOIN (
+          SELECT 
+            keuangan_id, 
+            SUM(CASE WHEN jenis_transaksi = 'Pemasukan' THEN nominal ELSE 0 END) AS total_pemasukan,
+            SUM(CASE WHEN jenis_transaksi = 'Pengeluaran' THEN nominal ELSE 0 END) AS total_pengeluaran
+          FROM keuangan_detail
+          GROUP BY keuangan_id
+        ) AS kd
+        ON k.id = kd.keuangan_id
+        SET 
+          k.total_pemasukan = IFNULL(kd.total_pemasukan, 0),
+          k.total_pengeluaran = IFNULL(kd.total_pengeluaran, 0)
       `;
 
-    // Hitung total uang saat ini
-    const sqlTotalUangSaatIni = `
-        SELECT 
-          SUM(total_pemasukan - total_pengeluaran) AS total_uang_saat_ini 
-        FROM keuangan
-      `;
-
-    db.query(sqlMain, (errMain, resultMain) => {
-      if (errMain) {
-        console.error("Error retrieving main data:", errMain);
-        return res.status(500).send("Gagal mengambil data keuangan.");
+    db.query(updateTotalsQuery, (errUpdate) => {
+      if (errUpdate) {
+        console.error("Error updating totals:", errUpdate);
+        return res
+          .status(500)
+          .send("Gagal memperbarui total pemasukan dan pengeluaran.");
       }
 
-      db.query(sqlTotalUangSaatIni, (errTotal, resultTotal) => {
-        if (errTotal) {
-          console.error("Error calculating total money:", errTotal);
-          return res.status(500).send("Gagal menghitung total uang saat ini.");
+      // Ambil data utama keuangan
+      const sqlMain = `
+          SELECT 
+            id, 
+            tahun, 
+            total_pemasukan, 
+            total_pengeluaran, 
+            DATE_FORMAT(updated_at, '%d %M %Y %H:%i:%s') AS tanggal_update_terakhir 
+          FROM keuangan
+        `;
+
+      // Hitung total uang saat ini
+      const sqlTotalUangSaatIni = `
+          SELECT 
+            SUM(total_pemasukan - total_pengeluaran) AS total_uang_saat_ini 
+          FROM keuangan
+        `;
+
+      db.query(sqlMain, (errMain, resultMain) => {
+        if (errMain) {
+          console.error("Error retrieving main data:", errMain);
+          return res.status(500).send("Gagal mengambil data keuangan.");
         }
 
-        const totalUangSaatIni = resultTotal[0]?.total_uang_saat_ini || 0;
+        db.query(sqlTotalUangSaatIni, (errTotal, resultTotal) => {
+          if (errTotal) {
+            console.error("Error calculating total money:", errTotal);
+            return res
+              .status(500)
+              .send("Gagal menghitung total uang saat ini.");
+          }
 
-        // Render halaman jika pengguna telah login dan memiliki izin pengurus
-        if (req.session.loggedin && req.session.isPengurus === "Ya") {
+          const totalUangSaatIni = resultTotal[0]?.total_uang_saat_ini || 0;
+
+          // Render halaman jika pengguna telah login dan memiliki izin pengurus
           res.render(
             path.join(__dirname, "../../views/data/keuangan/dataKeuangan"),
             {
@@ -76,12 +78,12 @@ router.get("/admin/data-keuangan", (req, res, next) => {
               message,
             }
           );
-        } else {
-          res.redirect("/login");
-        }
+        });
       });
     });
-  });
+  } else {
+    res.redirect("/login");
+  }
 });
 
 // Halaman detail data keuangan
@@ -91,29 +93,29 @@ router.get("/admin/data-keuangan/detail/:id", (req, res, next) => {
 
   const keuanganId = req.params.id;
 
-  const sqlDetail = `
-      SELECT
-        id,
-        keuangan_id, 
-        jenis_transaksi, 
-        nominal, 
-        keterangan, 
-        DATE_FORMAT(tanggal, '%d %M %Y') AS tanggal 
-      FROM keuangan_detail 
-      WHERE keuangan_id = ?
-    `;
+  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+    const sqlDetail = `
+    SELECT
+      id,
+      keuangan_id, 
+      jenis_transaksi, 
+      nominal, 
+      keterangan, 
+      DATE_FORMAT(tanggal, '%d %M %Y') AS tanggal 
+    FROM keuangan_detail 
+    WHERE keuangan_id = ?
+  `;
 
-  const sqlTahun = `SELECT tahun FROM keuangan WHERE id = ?`;
+    const sqlTahun = `SELECT tahun FROM keuangan WHERE id = ?`;
 
-  db.query(sqlDetail, [keuanganId], (err, detailResults) => {
-    if (err) throw err;
-
-    db.query(sqlTahun, [keuanganId], (err, tahunResults) => {
+    db.query(sqlDetail, [keuanganId], (err, detailResults) => {
       if (err) throw err;
 
-      const tahun = tahunResults.length > 0 ? tahunResults[0].tahun : null;
+      db.query(sqlTahun, [keuanganId], (err, tahunResults) => {
+        if (err) throw err;
 
-      if (req.session.loggedin && req.session.isPengurus === "Ya") {
+        const tahun = tahunResults.length > 0 ? tahunResults[0].tahun : null;
+
         res.render(
           path.join(__dirname, "../../views/data/keuangan/detailKeuangan"),
           {
@@ -122,11 +124,9 @@ router.get("/admin/data-keuangan/detail/:id", (req, res, next) => {
             message,
           }
         );
-      } else {
-        res.redirect("/login");
-      }
+      });
     });
-  });
+  }
 });
 // END GET
 
@@ -260,7 +260,6 @@ router.post("/admin/data-keuangan/edit", (req, res) => {
     res.redirect("/login");
   }
 });
-
 // END POST
 
 module.exports = router;

@@ -3,29 +3,35 @@ const router = express.Router();
 const path = require("path");
 const db = require("../../config/dbconfig");
 
-// Getting
+// GET
+// Halaman utama loket pendaftar
 router.get("/admin/loket-pendaftar", (req, res, next) => {
   const sqlGet = "SELECT * FROM pendaftar";
 
-  db.query(sqlGet, (err, results) => {
-    const message = req.session.message || null;
-    req.session.message = null; // Hapus pesan setelah ditampilkan
-    if (err) throw err;
+  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+    db.query(sqlGet, (err, results) => {
+      const message = req.session.message || null;
+      req.session.message = null; // Hapus pesan setelah ditampilkan
+      if (err) throw err;
 
-    if (req.session.loggedin && req.session.isPengurus === "Ya") {
-      // Render halaman dengan data atau pesan kosong
-      res.render(path.join(__dirname, "../../views/loket/loketPendaftar"), {
-        accounts: results.length > 0 ? results : null, // Kirim null jika tidak ada data
-        message,
-      });
-    } else {
-      res.redirect("/login");
-    }
-  });
+      if (req.session.loggedin && req.session.isPengurus === "Ya") {
+        // Render halaman dengan data atau pesan kosong
+        res.render(path.join(__dirname, "../../views/loket/loketPendaftar"), {
+          accounts: results.length > 0 ? results : null, // Kirim null jika tidak ada data
+          message,
+        });
+      } else {
+        res.redirect("/login");
+      }
+    });
+  } else {
+    res.redirect("/login");
+  }
 });
-// End Getting
+// END GET
 
-// Posting
+// POST
+// Terima pendaftar
 router.post("/admin/loket-pendaftar/terima", (req, res, next) => {
   const { id } = req.body; // ID dari data pendaftar yang akan diterima
 
@@ -74,6 +80,7 @@ router.post("/admin/loket-pendaftar/terima", (req, res, next) => {
   }
 });
 
+// Tolak pendaftar
 router.post("/admin/loket-pendaftar/tolak", (req, res, next) => {
   const { id } = req.body; // ID dari data pendaftar yang akan ditolak
 
@@ -94,7 +101,6 @@ router.post("/admin/loket-pendaftar/tolak", (req, res, next) => {
     res.redirect("/login");
   }
 });
-
-// End Posting
+// END POST
 
 module.exports = router;

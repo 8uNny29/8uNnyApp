@@ -5,7 +5,8 @@ const db = require("../config/dbconfig");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
 
-// Getting
+// GET
+// Halaman login
 router.get("/login", (req, res, next) => {
   if (req.session.loggedin) {
     res.redirect("/admin");
@@ -14,6 +15,7 @@ router.get("/login", (req, res, next) => {
   }
 });
 
+// Halaman register
 router.get("/register", (req, res, next) => {
   if (req.session.loggedin) {
     res.redirect("/");
@@ -22,6 +24,7 @@ router.get("/register", (req, res, next) => {
   }
 });
 
+// Halaman logout
 router.get("/logout", (req, res, next) => {
   if (req.session.loggedin) {
     req.session.username = null;
@@ -36,9 +39,10 @@ router.get("/logout", (req, res, next) => {
     });
   }
 });
-// End Getting
+// END GET
 
-// Posting
+// POST
+// Login
 router.post("/login", (req, res) => {
   try {
     let { username, password } = req.body;
@@ -103,6 +107,7 @@ router.post("/login", (req, res) => {
   }
 });
 
+// Register
 router.post("/register", async (req, res) => {
   try {
     let { username, namaLengkap, kelas, divisi, password, confirm_password } =
@@ -172,7 +177,6 @@ router.post("/register", async (req, res) => {
     res.status(500).send("Terjadi kesalahan server. Silakan coba lagi nanti.");
   }
 });
-
-// End Posting
+// END POST
 
 module.exports = router;

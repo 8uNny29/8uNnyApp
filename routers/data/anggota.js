@@ -9,44 +9,45 @@ const ExcelJS = require("exceljs");
 router.get("/admin/data-anggota", (req, res, next) => {
   let message = req.session.message;
   req.session.message = null;
+
   const { kelas, divisi, role } = req.query;
+  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+    let sqlGetAll = "SELECT * FROM accounts";
+    const filters = [];
 
-  let sqlGetAll = "SELECT * FROM accounts";
-  const filters = [];
+    if (kelas) filters.push(`kelas = '${kelas}'`);
+    if (divisi) filters.push(`divisi = '${divisi}'`);
+    if (role) filters.push(`role = '${role}'`);
 
-  if (kelas) filters.push(`kelas = '${kelas}'`);
-  if (divisi) filters.push(`divisi = '${divisi}'`);
-  if (role) filters.push(`role = '${role}'`);
+    if (filters.length > 0) {
+      sqlGetAll += " WHERE " + filters.join(" AND ");
+    }
 
-  if (filters.length > 0) {
-    sqlGetAll += " WHERE " + filters.join(" AND ");
-  }
+    const sqlUniqueKelas =
+      "SELECT DISTINCT kelas FROM accounts ORDER BY kelas ASC";
+    const sqlUniqueDivisi =
+      "SELECT DISTINCT divisi FROM accounts ORDER BY divisi ASC";
+    const sqlUniqueRoles =
+      "SELECT DISTINCT role FROM accounts ORDER BY role ASC";
 
-  const sqlUniqueKelas =
-    "SELECT DISTINCT kelas FROM accounts ORDER BY kelas ASC";
-  const sqlUniqueDivisi =
-    "SELECT DISTINCT divisi FROM accounts ORDER BY divisi ASC";
-  const sqlUniqueRoles = "SELECT DISTINCT role FROM accounts ORDER BY role ASC";
+    db.query(sqlGetAll, (err, results) => {
+      if (err) throw err;
 
-  db.query(sqlGetAll, (err, results) => {
-    if (err) throw err;
+      const accounts = results;
 
-    const accounts = results;
+      db.query(sqlUniqueKelas, (errKelas, resultsKelas) => {
+        if (errKelas) throw errKelas;
 
-    db.query(sqlUniqueKelas, (errKelas, resultsKelas) => {
-      if (errKelas) throw errKelas;
+        db.query(sqlUniqueDivisi, (errDivisi, resultsDivisi) => {
+          if (errDivisi) throw errDivisi;
 
-      db.query(sqlUniqueDivisi, (errDivisi, resultsDivisi) => {
-        if (errDivisi) throw errDivisi;
+          db.query(sqlUniqueRoles, (errRoles, resultsRoles) => {
+            if (errRoles) throw errRoles;
 
-        db.query(sqlUniqueRoles, (errRoles, resultsRoles) => {
-          if (errRoles) throw errRoles;
+            const uniqueKelas = resultsKelas.map((row) => row.kelas);
+            const uniqueDivisi = resultsDivisi.map((row) => row.divisi);
+            const uniqueRoles = resultsRoles.map((row) => row.role);
 
-          const uniqueKelas = resultsKelas.map((row) => row.kelas);
-          const uniqueDivisi = resultsDivisi.map((row) => row.divisi);
-          const uniqueRoles = resultsRoles.map((row) => row.role);
-
-          if (req.session.loggedin && req.session.isPengurus === "Ya") {
             res.render(
               path.join(__dirname, "../../views/data/anggota/dataAnggota"),
               {
@@ -58,13 +59,13 @@ router.get("/admin/data-anggota", (req, res, next) => {
                 message,
               }
             );
-          } else {
-            res.redirect("/login");
-          }
+          });
         });
       });
     });
-  });
+  } else {
+    res.redirect("/login");
+  }
 });
 
 // Export data
@@ -196,6 +197,6 @@ router.post("/admin/data-anggota/filter", (req, res, next) => {
     res.redirect("/login");
   }
 });
-// End Posting
+// END POST
 
 module.exports = router;

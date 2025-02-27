@@ -5,6 +5,7 @@ const db = require("../config/dbconfig");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 
+// Fungsi untuk menyamarkan email
 function maskEmail(email) {
   const [user, domain] = email.split("@"); // Pisahkan bagian sebelum dan sesudah "@"
   const visibleStart = user.slice(0, 2); // Ambil 2 karakter pertama
@@ -21,12 +22,14 @@ function maskEmail(email) {
   }
 }
 
+// Fungsi untuk menyamarkan nomor telepon
 function maskPhone(phone) {
   return phone.slice(0, 3) + "*".repeat(phone.length - 6) + phone.slice(-3);
 }
 
-// Getting
-router.get("/admin/settings/", (req, res, next) => {
+// GET
+// Halaman settings
+router.get("/settings/", (req, res, next) => {
   const user_id = req.session.user_id;
   const sqlGet = "SELECT * FROM accounts WHERE id = ?";
 
@@ -44,7 +47,7 @@ router.get("/admin/settings/", (req, res, next) => {
         ? maskPhone(account.no_telpon)
         : "Tidak tersedia";
 
-      if (req.session.loggedin && req.session.isPengurus === "Ya") {
+      if (req.session.loggedin) {
         res.render(path.join(__dirname, "../views/account/settings"), {
           account,
         });
@@ -57,33 +60,35 @@ router.get("/admin/settings/", (req, res, next) => {
   });
 });
 
-router.get("/admin/settings/account-settings", (req, res, next) => {
+// Halaman pengaturan akun
+router.get("/settings/account-settings", (req, res, next) => {
   const user_id = req.session.user_id;
   const sqlGet = "SELECT * FROM accounts WHERE id = ?";
 
-  db.query(sqlGet, [user_id], (err, results, rows) => {
-    if (err) throw err;
+  if (req.session.loggedin) {
+    db.query(sqlGet, [user_id], (err, results, rows) => {
+      if (err) throw err;
 
-    if (results.length > 0) {
-      const account = results[0];
+      if (results.length > 0) {
+        const account = results[0];
 
-      if (req.session.loggedin && req.session.isPengurus === "Ya") {
         res.render(path.join(__dirname, "../views/account/account-settings"), {
           account,
         });
       } else {
         res.redirect("/login");
       }
-    } else {
-      res.redirect("/login");
-    }
-  });
+    });
+  } else {
+    res.redirect("/login");
+  }
 });
-// End Getting
+// END GET
 
-// Posting
-router.post("/admin/settings/change-username", async (req, res, next) => {
-  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+// POST
+// Ganti username
+router.post("/settings/change-username", async (req, res, next) => {
+  if (req.session.loggedin) {
     try {
       const { newUsername } = req.body;
       const user_id = req.session.user_id;
@@ -157,8 +162,9 @@ router.post("/admin/settings/change-username", async (req, res, next) => {
   }
 });
 
-router.post("/admin/settings/change-password", async (req, res, next) => {
-  if (req.session.loggedin && req.session.isPengurus === "Ya") {
+// Ganti password
+router.post("/settings/change-password", async (req, res, next) => {
+  if (req.session.loggedin) {
     try {
       const { currentPassword, newPassword, newConfirmPassword } = req.body;
       const user_id = req.session.user_id;
@@ -250,7 +256,8 @@ router.post("/admin/settings/change-password", async (req, res, next) => {
   }
 });
 
-router.post("/admin/settings/change-email", async (req, res, next) => {
+// Ganti email
+router.post("/settings/change-email", async (req, res, next) => {
   try {
     const { newEmail } = req.body;
     const user_id = req.session.user_id;
@@ -317,7 +324,8 @@ router.post("/admin/settings/change-email", async (req, res, next) => {
   }
 });
 
-router.post("/admin/settings/change-phone", async (req, res, next) => {
+// Ganti nomor telepon
+router.post("/settings/change-phone", async (req, res, next) => {
   try {
     const { newPhone } = req.body;
     const user_id = req.session.user_id;
@@ -387,6 +395,6 @@ router.post("/admin/settings/change-phone", async (req, res, next) => {
     res.status(500).send("Terjadi kesalahan server. Silakan coba lagi nanti.");
   }
 });
-// End Posting
+// END POST
 
 module.exports = router;

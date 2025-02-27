@@ -7,6 +7,8 @@ const ExcelJS = require("exceljs");
 // GET
 // Halaman utama data anggota
 router.get("/admin/data-anggota", (req, res, next) => {
+  let message = req.session.message;
+  req.session.message = null;
   const { kelas, divisi, role } = req.query;
 
   let sqlGetAll = "SELECT * FROM accounts";
@@ -45,13 +47,17 @@ router.get("/admin/data-anggota", (req, res, next) => {
           const uniqueRoles = resultsRoles.map((row) => row.role);
 
           if (req.session.loggedin && req.session.isPengurus === "Ya") {
-            res.render(path.join(__dirname, "../../views/data/data-anggota"), {
-              accounts,
-              uniqueKelas,
-              uniqueDivisi,
-              uniqueRoles,
-              query: req.query, // Pastikan req.query dikirim ke view
-            });
+            res.render(
+              path.join(__dirname, "../../views/data/anggota/dataAnggota"),
+              {
+                accounts,
+                uniqueKelas,
+                uniqueDivisi,
+                uniqueRoles,
+                query: req.query, // Pastikan req.query dikirim ke view
+                message,
+              }
+            );
           } else {
             res.redirect("/login");
           }

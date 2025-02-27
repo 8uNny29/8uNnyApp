@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const path = require("path");
-const db = require("../config/dbconfig");
+const db = require("../../config/dbconfig");
 
 // Getting
-router.get("/admin/tabel-pendaftaran", (req, res, next) => {
-  const sqlGet = "SELECT * FROM pendaftaran";
+router.get("/admin/loket-pendaftar", (req, res, next) => {
+  const sqlGet = "SELECT * FROM pendaftar";
 
   db.query(sqlGet, (err, results) => {
     const message = req.session.message || null;
@@ -14,7 +14,7 @@ router.get("/admin/tabel-pendaftaran", (req, res, next) => {
 
     if (req.session.loggedin && req.session.isPengurus === "Ya") {
       // Render halaman dengan data atau pesan kosong
-      res.render(path.join(__dirname, "../views/tabel/tabel-pendaftaran"), {
+      res.render(path.join(__dirname, "../../views/loket/loketPendaftar"), {
         accounts: results.length > 0 ? results : null, // Kirim null jika tidak ada data
         message,
       });
@@ -26,13 +26,13 @@ router.get("/admin/tabel-pendaftaran", (req, res, next) => {
 // End Getting
 
 // Posting
-router.post("/admin/tabel-pendaftaran/terima", (req, res, next) => {
-  const { id } = req.body; // ID dari data pendaftaran yang akan diterima
+router.post("/admin/loket-pendaftar/terima", (req, res, next) => {
+  const { id } = req.body; // ID dari data pendaftar yang akan diterima
 
   if (req.session.loggedin && req.session.isPengurus === "Ya") {
-    // Ambil data dari tabel pendaftaran berdasarkan ID
+    // Ambil data dari tabel pendaftar berdasarkan ID
     const sqlSelect =
-      "SELECT username, password, nama, kelas, divisi FROM pendaftaran WHERE id = ?";
+      "SELECT username, password, nama, kelas, divisi FROM pendaftar WHERE id = ?";
     db.query(sqlSelect, [id], (err, results) => {
       if (err) {
         console.error("Error fetching data:", err);
@@ -55,17 +55,17 @@ router.post("/admin/tabel-pendaftaran/terima", (req, res, next) => {
           return res.status(500).send("Database error");
         }
 
-        // Hapus data dari tabel pendaftaran setelah diproses
-        const sqlDelete = "DELETE FROM pendaftaran WHERE id = ?";
+        // Hapus data dari tabel pendaftar setelah diproses
+        const sqlDelete = "DELETE FROM pendaftar WHERE id = ?";
         db.query(sqlDelete, [id], (err) => {
           if (err) {
             console.error("Error deleting data:", err);
             return res.status(500).send("Database error");
           }
 
-          // Redirect kembali ke halaman tabel pendaftaran
-          req.session.message = "Pendaftaran berhasil diterima.";
-          res.redirect("/admin/tabel-pendaftaran");
+          // Redirect kembali ke halaman tabel pendaftar
+          req.session.message = "pendaftar berhasil diterima.";
+          res.redirect("/admin/loket-pendaftar");
         });
       });
     });
@@ -74,21 +74,21 @@ router.post("/admin/tabel-pendaftaran/terima", (req, res, next) => {
   }
 });
 
-router.post("/admin/tabel-pendaftaran/tolak", (req, res, next) => {
-  const { id } = req.body; // ID dari data pendaftaran yang akan ditolak
+router.post("/admin/loket-pendaftar/tolak", (req, res, next) => {
+  const { id } = req.body; // ID dari data pendaftar yang akan ditolak
 
   if (req.session.loggedin && req.session.isPengurus === "Ya") {
-    // Hapus data dari tabel pendaftaran berdasarkan ID
-    const sqlDelete = "DELETE FROM pendaftaran WHERE id = ?";
+    // Hapus data dari loket pendaftar berdasarkan ID
+    const sqlDelete = "DELETE FROM pendaftar WHERE id = ?";
     db.query(sqlDelete, [id], (err) => {
       if (err) {
         console.error("Error deleting data:", err);
         return res.status(500).send("Database error");
       }
 
-      // Redirect kembali ke halaman tabel pendaftaran setelah proses selesai
-      req.session.message = "Pendaftaran berhasil ditolak.";
-      res.redirect("/admin/tabel-pendaftaran");
+      // Redirect kembali ke halaman tabel pendaftar setelah proses selesai
+      req.session.message = "pendaftar berhasil ditolak.";
+      res.redirect("/admin/loket-pendaftar");
     });
   } else {
     res.redirect("/login");

@@ -26,10 +26,10 @@ const auth = require("./routers/auth");
 const settings = require("./routers/settings");
 const dataAnggota = require("./routers/data/anggota");
 const dataKeuangan = require("./routers/data/keuangan");
-const tabel = require("./routers/tabel");
+const loketPendaftar = require("./routers/loket/pendaftar");
 
 // Routers
-app.use("/", auth, settings, dataAnggota, dataKeuangan, tabel);
+app.use("/", auth, settings, dataAnggota, dataKeuangan, loketPendaftar);
 
 app.get("/", (req, res, next) => {
   res.render("index");
@@ -37,7 +37,7 @@ app.get("/", (req, res, next) => {
 
 app.get("/admin", (req, res, next) => {
   if (req.session.loggedin && req.session.isPengurus === "Ya") {
-    res.render(path.join(__dirname, "/views/admins/panel"), {
+    res.render(path.join(__dirname, "/views/admins/adminsPanel"), {
       session: req.session,
     });
   } else {

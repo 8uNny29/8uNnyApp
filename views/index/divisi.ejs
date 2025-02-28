@@ -32,12 +32,11 @@
     />
   </head>
   <body>
-    <%- include('navbar') %>
+    <%- include('../navbar') %>
 
-    <div class="baner">
-      <h1>HISS TKJ</h1>
-      <h2>Himpunan Siswa Siswi TKJ</h2>
-      <h3>-</h3>
+    <div class="page-header">
+      <h2>HISS TKJ</h2>
+      <p>Himpunan Siswa Siswi TKJ</p>
     </div>
 
     <div class="divisi" id="dev-p1">
@@ -54,7 +53,7 @@
             alt="<%= row.nama_devisi %>"
           /> -->
           <div class="des">
-            <span><%= row.nama_devisi %></span>
+            <h4><%= row.nama_divisi %></h4>
             <h5><%= row.deskripsi %></h5>
           </div>
         </div>
@@ -67,7 +66,7 @@
       <h4>HISS TKJ</h4>
     </div>
 
-    <%- include('footer') %>
+    <%- include('../footer') %>
     <script src="scrip.js"></script>
   </body>
 </html>

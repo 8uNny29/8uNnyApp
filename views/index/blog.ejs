@@ -25,41 +25,39 @@
 
     <!-- LINK FONT  -->
     <!-- <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> -->
     <link
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@100&family=Secular+One&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
-    <%- include('navbar') %>
+    <%- include('../navbar') %>
 
-    <div class="baner">
-      <h1>HISS TKJ</h1>
-      <h2>Himpunan Siswa Siswi TKJ</h2>
-      <h3>-</h3>
-    </div>
-
-    <div class="divisi" id="dev-p1">
-      <h2>Divisi HISS TKJ</h2>
-      <div class="pro-cont">
-        <% divisi.forEach(function(row) { %>
-        <div class="dev">
-          <img
-            src="assets/images/Untitled-2.png"
-            alt="<%= row.nama_devisi %>"
-          />
-          <!-- <img
-            src="assets/images/divisi/<%= row.gambar %>"
-            alt="<%= row.nama_devisi %>"
-          /> -->
-          <div class="des">
-            <span><%= row.nama_devisi %></span>
-            <h5><%= row.deskripsi %></h5>
-          </div>
+    <div id="layoutSidenav_content">
+      <main>
+        <div class="page-header">
+          <h2>Blog About PALADA</h2>
         </div>
-        <% }); %>
-      </div>
+
+        <section class="blog">
+          <% blog.forEach(function(row) { %>
+          <div class="blog-box">
+            <div class="blog-img">
+              <img
+                src="admin/img/blog/<%= row.gambar %>"
+                alt="<%= row.judul %>"
+              />
+            </div>
+            <div class="blog-details">
+              <h4><%= row.judul %></h4>
+              <p><%= row.konten %></p>
+              <a href="<%= row.link %>">Selengkapnya</a>
+            </div>
+          </div>
+          <% }); %>
+        </section>
+      </main>
     </div>
 
     <div class="baner1" id="dev-p2">
@@ -67,7 +65,7 @@
       <h4>HISS TKJ</h4>
     </div>
 
-    <%- include('footer') %>
+    <%- include('../footer') %>
     <script src="scrip.js"></script>
   </body>
 </html>

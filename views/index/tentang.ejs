@@ -32,42 +32,30 @@
     />
   </head>
   <body>
-    <%- include('navbar') %>
+    <%- include('../navbar') %>
 
-    <div class="baner">
-      <h1>HISS TKJ</h1>
-      <h2>Himpunan Siswa Siswi TKJ</h2>
-      <h3>-</h3>
+    <div class="page-header">
+      <h2>HISS TKJ</h2>
+      <p>Himpunan Siswa Siswi TKJ</p>
     </div>
 
-    <div class="divisi" id="dev-p1">
-      <h2>Divisi HISS TKJ</h2>
-      <div class="pro-cont">
-        <% divisi.forEach(function(row) { %>
-        <div class="dev">
-          <img
-            src="assets/images/Untitled-2.png"
-            alt="<%= row.nama_devisi %>"
-          />
-          <!-- <img
-            src="assets/images/divisi/<%= row.gambar %>"
-            alt="<%= row.nama_devisi %>"
-          /> -->
-          <div class="des">
-            <span><%= row.nama_devisi %></span>
-            <h5><%= row.deskripsi %></h5>
-          </div>
-        </div>
-        <% }); %>
+    <div class="prodetails" id="section-p1">
+      <div class="single-pro-images">
+        <img src="../assets/images/Untitled-2.png" width="100%" id="MainImg" />
+      </div>
+
+      <div class="signle-pro-details">
+        <h4>Himpunan Siswa Siswa TKJ (HISS TKJ)</h4>
+
+        <span
+          >Lorem ipsum, dolor sit amet consectetur adipisicing elit. Consectetur
+          vitae ea fugit dicta beatae illo fugiat, amet enim, quos tempora sint
+          quia praesentium est aliquam esse porro animi, ipsa minus?</span
+        >
       </div>
     </div>
 
-    <div class="baner1" id="dev-p2">
-      <h2>PUSH YOUR LIMIT!</h2>
-      <h4>HISS TKJ</h4>
-    </div>
-
-    <%- include('footer') %>
+    <%- include('../footer') %>
     <script src="scrip.js"></script>
   </body>
 </html>

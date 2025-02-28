@@ -32,29 +32,29 @@
     />
   </head>
   <body>
-    <%- include('navbar') %>
+    <%- include('../navbar') %>
 
-    <div class="baner">
-      <h1>HISS TKJ</h1>
-      <h2>Himpunan Siswa Siswi TKJ</h2>
-      <h3>-</h3>
+    <div class="page-header">
+      <h2>HISS TKJ</h2>
+      <p>Himpunan Siswa Siswi TKJ</p>
     </div>
 
     <div class="divisi" id="dev-p1">
-      <h2>Divisi HISS TKJ</h2>
+      <h2>Aktivitas HISS TKJ</h2>
       <div class="pro-cont">
-        <% divisi.forEach(function(row) { %>
+        <% aktivitas.forEach(function(row) { %>
         <div class="dev">
           <img
             src="assets/images/Untitled-2.png"
-            alt="<%= row.nama_devisi %>"
+            alt="<%= row.nama_aktivitas %>"
           />
           <!-- <img
             src="assets/images/divisi/<%= row.gambar %>"
-            alt="<%= row.nama_devisi %>"
+            alt="<%= row.nama_aktivitas %>"
           /> -->
           <div class="des">
-            <span><%= row.nama_devisi %></span>
+            <h4><%= row.nama_aktivitas %></h4>
+            <span><%= row.tanggal %></span>
             <h5><%= row.deskripsi %></h5>
           </div>
         </div>
@@ -67,7 +67,7 @@
       <h4>HISS TKJ</h4>
     </div>
 
-    <%- include('footer') %>
+    <%- include('../footer') %>
     <script src="scrip.js"></script>
   </body>
 </html>

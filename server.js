@@ -22,6 +22,7 @@ const sessionMiddleware = sessions({
 app.use(sessionMiddleware);
 
 // Get Routers
+const index = require("./routers/index");
 const auth = require("./routers/auth");
 const settings = require("./routers/settings");
 const dataAnggota = require("./routers/data/anggota");
@@ -29,11 +30,7 @@ const dataKeuangan = require("./routers/data/keuangan");
 const loketPendaftar = require("./routers/loket/pendaftar");
 
 // Routers
-app.use("/", auth, settings, dataAnggota, dataKeuangan, loketPendaftar);
-
-app.get("/", (req, res, next) => {
-  res.render("index");
-});
+app.use("/", index, auth, settings, dataAnggota, dataKeuangan, loketPendaftar);
 
 app.get("/admin", (req, res, next) => {
   if (req.session.loggedin && req.session.isPengurus === "Ya") {
